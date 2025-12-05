@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entity Monitor</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container" id="monitorApp">
+        <div class="monitor-panel">
+            <!-- Header -->
+            <div class="monitor-header">
+                <div class="header-left">
+                    <i class="fas fa-microchip header-icon"></i>
+                    <div class="header-content">
+                        <h1>Entity Monitor</h1>
+                        <p id="headerSubtitle">Dashboard Admin - Pool Size</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn" id="analyzeBtn" title="Analyser les problemes">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="action-btn" id="debugBtn" title="Mode Debug - Localiser les entites unknown">
+                        <i class="fas fa-bug"></i>
+                    </button>
+                    <button class="action-btn" id="refreshBtn" title="Rafraichir">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="action-btn" id="autoRefreshBtn" title="Auto-refresh">
+                        <i class="fas fa-clock"></i>
+                    </button>
+                    <button class="close-btn" id="closeBtn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-icon vehicles">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalVehicles">0</span>
+                        <span class="stat-label">Vehicules</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon peds">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalPeds">0</span>
+                        <span class="stat-label">Peds</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon objects">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalObjects">0</span>
+                        <span class="stat-label">Objets</span>
+                    </div>
+                </div>
+                <div class="stat-card total">
+                    <div class="stat-icon total-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalEntities">0</span>
+                        <span class="stat-label">Total</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server Info Bar -->
+            <div class="server-info-bar">
+                <div class="info-item">
+                    <i class="fas fa-users"></i>
+                    <span id="playerCount">0/32</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-server"></i>
+                    <span id="resourceCount">0 ressources</span>
+                </div>
+                <div class="info-item" id="lastUpdate">
+                    <i class="fas fa-clock"></i>
+                    <span>Derniere MAJ: --:--:--</span>
+                </div>
+            </div>
+
+            <!-- Problems Panel -->
+            <div class="problems-panel" id="problemsPanel" style="display: none;">
+                <div class="problems-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Problemes detectes</h3>
+                    <button class="clean-all-btn" id="cleanAllBtn">
+                        <i class="fas fa-broom"></i> Tout nettoyer
+                    </button>
+                </div>
+
+                <!-- Clothing Props -->
+                <div class="problem-section" id="clothingSection">
+                    <div class="problem-title">
+                        <i class="fas fa-tshirt"></i>
+                        <span>Props Vetements Orphelins</span>
+                        <span class="problem-count" id="clothingCount">0</span>
+                    </div>
+                    <div class="problem-list" id="clothingList"></div>
+                    <button class="clean-btn" id="cleanClothingBtn">
+                        <i class="fas fa-trash"></i> Supprimer les props vetements
+                    </button>
+                </div>
+
+                <!-- Orphan Vehicles -->
+                <div class="problem-section" id="vehiclesSection">
+                    <div class="problem-title">
+                        <i class="fas fa-car-crash"></i>
+                        <span>Vehicules Orphelins</span>
+                        <span class="problem-count" id="orphanVehiclesCount">0</span>
+                    </div>
+                    <div class="problem-list" id="orphanVehiclesList"></div>
+                </div>
+
+                <!-- Out of Bounds -->
+                <div class="problem-section" id="outOfBoundsSection">
+                    <div class="problem-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Entites Hors Map</span>
+                        <span class="problem-count" id="outOfBoundsCount">0</span>
+                    </div>
+                    <div class="problem-list" id="outOfBoundsList"></div>
+                </div>
+
+                <!-- Duplicates -->
+                <div class="problem-section" id="duplicatesSection">
+                    <div class="problem-title">
+                        <i class="fas fa-clone"></i>
+                        <span>Duplicatas (meme position)</span>
+                        <span class="problem-count" id="duplicatesCount">0</span>
+                    </div>
+                    <div class="problem-list" id="duplicatesList"></div>
+                </div>
+            </div>
+
+            <!-- Debug Panel (MLO Detection) -->
+            <div class="debug-panel" id="debugPanel" style="display: none;">
+                <div class="debug-header">
+                    <h3><i class="fas fa-bug"></i> Mode Debug - MLO Suspects</h3>
+                    <span class="debug-status" id="debugStatus">
+                        <i class="fas fa-circle"></i> Actif
+                    </span>
+                </div>
+                <div class="debug-info">
+                    <div class="debug-stat">
+                        <span class="debug-value" id="unknownCount">0</span>
+                        <span class="debug-label">Entites Unknown</span>
+                    </div>
+                    <div class="debug-stat">
+                        <span class="debug-value" id="mloCount">0</span>
+                        <span class="debug-label">MLO Suspects</span>
+                    </div>
+                </div>
+                <div class="mlo-list" id="mloList">
+                    <!-- MLO items will be added here -->
+                </div>
+                <div class="debug-legend">
+                    <span><i class="fas fa-circle" style="color: #4a9eff;"></i> Vehicules</span>
+                    <span><i class="fas fa-circle" style="color: #00ff88;"></i> Peds</span>
+                    <span><i class="fas fa-circle" style="color: #ff9500;"></i> Objets</span>
+                    <span><i class="fas fa-exclamation-triangle" style="color: #ff4444;"></i> MLO Suspect</span>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content-area">
+                <!-- Resources List -->
+                <div class="resources-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-puzzle-piece"></i> Ressources par entites</h2>
+                        <div class="sort-controls">
+                            <select id="sortBy">
+                                <option value="total">Total</option>
+                                <option value="vehicles">Vehicules</option>
+                                <option value="peds">Peds</option>
+                                <option value="objects">Objets</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="resources-list" id="resourcesList">
+                        <!-- Resources will be added here -->
+                        <div class="loading-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Chargement des donnees...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="monitor-footer">
+                <div class="footer-item">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Probleme de pool? Redemarrez les ressources avec le plus d'entites</span>
+                </div>
+                <div class="footer-item">
+                    <i class="fas fa-keyboard"></i>
+                    <span>ESC pour fermer</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
