@@ -108,4 +108,4 @@ entity-monitor/
 
 ## Credits
 
-Developpe pour Strike RP
+Developpe par ezekielmsc
